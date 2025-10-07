@@ -104,7 +104,6 @@ header h1 {
     text-align: center;
 }
 
-/* Fixed height content block for alignment */
 .item-text {
     display: flex;
     flex-direction: column;
@@ -232,12 +231,13 @@ function displayItems(filteredItems) {
         cards.push(card);
     });
 
-    // 🔹 Make all cards same height dynamically
+    alignCardHeights(cards);
+}
+
+// 🔹 Align card heights dynamically
+function alignCardHeights(cards) {
     let maxHeight = 0;
-    cards.forEach(c => { 
-        c.style.height = 'auto'; // reset
-        if(c.offsetHeight > maxHeight) maxHeight = c.offsetHeight;
-    });
+    cards.forEach(c => { c.style.height = 'auto'; if(c.offsetHeight > maxHeight) maxHeight = c.offsetHeight; });
     cards.forEach(c => { c.style.height = maxHeight + 'px'; });
 }
 
@@ -261,6 +261,12 @@ fetchData();
 
 // Auto refresh every 2 minutes
 setInterval(fetchData, 120000);
+
+// 🔹 Recalculate heights on window resize
+window.addEventListener('resize', () => {
+    const cards = Array.from(document.querySelectorAll('.item-card'));
+    if(cards.length) alignCardHeights(cards);
+});
 </script>
 
 </body>
