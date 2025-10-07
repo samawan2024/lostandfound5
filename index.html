@@ -12,7 +12,7 @@
         display: flex;
         flex-direction: column;
         min-height: 100vh;
-        padding-top: 160px; /* space for header + search bar */
+        padding-top: 100px; /* for header space */
     }
 
     /* Fixed Header */
@@ -34,19 +34,15 @@
         font-size: 3em;
     }
 
-    /* Fixed Search Bar */
+    /* Search Bar */
     .search-bar {
         background-color: #eaf1ff;
-        position: fixed;
-        top: 100px;
-        left: 0;
-        width: 100%;
-        z-index: 999;
         display: flex;
         justify-content: center;
         gap: 10px;
         padding: 15px;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-top: 10px;
     }
 
     .search-bar input {
@@ -90,10 +86,11 @@
 
     .item-card img {
         width: 100%;
-        height: 220px;
-        object-fit: cover;
+        max-height: 300px; /* fixed space but image fully visible */
+        object-fit: contain; /* ensures full image is visible */
         border-radius: 8px;
         margin-bottom: 10px;
+        background-color: #f9f9f9; /* for images with transparency */
     }
 
     .item-card h3 {
@@ -159,13 +156,13 @@
     <h1>Lost & Found</h1>
 </header>
 
-<div class="search-bar">
-    <input type="text" id="search-name" placeholder="Search by item name">
-    <input type="text" id="search-location" placeholder="Search by location">
-    <input type="text" id="search-date" placeholder="Search by date (YYYY-MM-DD)">
-</div>
-
 <div class="main-content">
+    <div class="search-bar">
+        <input type="text" id="search-name" placeholder="Search by item name">
+        <input type="text" id="search-location" placeholder="Search by location">
+        <input type="text" id="search-date" placeholder="Search by date (YYYY-MM-DD)">
+    </div>
+
     <div class="items-container" id="items-container">
         <!-- Items load here -->
     </div>
@@ -212,7 +209,7 @@ function displayItems(filteredItems) {
             <p><strong>Location:</strong> ${item.location}</p>
             <p><strong>Date Found:</strong> ${item.dateFound}</p>
             <p class="desc">${shortDesc}</p>
-            <a href="mailto:school@example.com?subject=Claiming ${item.itemName}" class="claim-button">Claim Item</a>
+            <a href="mailto:school@example.com?subject=Claiming ${item.itemName}" class="claim-button"> Visit School to Claim Item</a>
         `;
         container.appendChild(card);
     });
