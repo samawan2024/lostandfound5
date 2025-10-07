@@ -12,12 +12,12 @@
         display: flex;
         flex-direction: column;
         min-height: 100vh;
-        padding-top: 100px; /* space for fixed header */
+        padding-top: 160px; /* space for header + search bar */
     }
 
     /* Fixed Header */
     header {
-        background-color: #1e3d7b; /* AISA blue */
+        background-color: #1e3d7b;
         color: white;
         text-align: center;
         padding: 30px 20px;
@@ -34,34 +34,42 @@
         font-size: 3em;
     }
 
-    /* Main Content */
-    .main-content {
-        flex: 1;
-        width: 100%;
-        max-width: none; /* full width */
-        margin: 20px 0;
-        padding: 0 15px;
-    }
-
+    /* Fixed Search Bar */
     .search-bar {
-        margin-bottom: 20px;
+        background-color: #eaf1ff;
+        position: fixed;
+        top: 100px;
+        left: 0;
+        width: 100%;
+        z-index: 999;
         display: flex;
-        flex-wrap: wrap;
+        justify-content: center;
         gap: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .search-bar input {
         padding: 10px 15px;
-        flex: 1 1 200px;
         border-radius: 5px;
         border: 1px solid #ccc;
+        width: 250px;
+        font-size: 1em;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        width: 100%;
+        margin: 20px 0;
+        padding: 0 15px;
     }
 
     .items-container {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 20px;
-        width: 100%; /* full width */
+        width: 100%;
         padding: 0 15px;
     }
 
@@ -70,10 +78,20 @@
         border-radius: 10px;
         padding: 15px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.2s ease;
+    }
+
+    .item-card:hover {
+        transform: translateY(-5px);
     }
 
     .item-card img {
         width: 100%;
+        height: 220px;
+        object-fit: cover;
         border-radius: 8px;
         margin-bottom: 10px;
     }
@@ -81,11 +99,22 @@
     .item-card h3 {
         margin: 10px 0 5px;
         color: #1e3d7b;
+        text-align: center;
     }
 
     .item-card p {
         margin: 5px 0;
         font-size: 0.95em;
+        text-align: center;
+    }
+
+    .item-card .desc {
+        max-height: 3.5em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
     }
 
     .claim-button {
@@ -105,7 +134,7 @@
 
     /* Footer */
     footer {
-        background-color: #162d5a; /* darker AISA blue */
+        background-color: #162d5a;
         color: white;
         padding: 30px 20px;
         text-align: center;
@@ -120,6 +149,7 @@
 
     @media (max-width: 600px) {
         header h1 { font-size: 2em; }
+        .search-bar input { width: 150px; }
     }
 </style>
 </head>
@@ -129,15 +159,15 @@
     <h1>Lost & Found</h1>
 </header>
 
-<div class="main-content">
-    <div class="search-bar">
-        <input type="text" id="search-name" placeholder="Search by item name">
-        <input type="text" id="search-location" placeholder="Search by location">
-        <input type="text" id="search-date" placeholder="Search by date (YYYY-MM-DD)">
-    </div>
+<div class="search-bar">
+    <input type="text" id="search-name" placeholder="Search by item name">
+    <input type="text" id="search-location" placeholder="Search by location">
+    <input type="text" id="search-date" placeholder="Search by date (YYYY-MM-DD)">
+</div>
 
+<div class="main-content">
     <div class="items-container" id="items-container">
-        <!-- Item cards will populate here -->
+        <!-- Items load here -->
     </div>
 </div>
 
@@ -152,25 +182,28 @@
 
 <script>
 const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQzVAX5LQUThAu9iZqUhOOg_qrtQqm9QNiuKswkhIhh3D1mj0VLdszy58IezAStp2dTMauciFxjEVJe/pub?output=csv';
-
 let items = [];
 
-fetch(sheetUrl)
-    .then(response => response.text())
-    .then(data => {
-        const rows = data.split('\n').slice(1); // Skip header
+async function fetchData() {
+    try {
+        const response = await fetch(sheetUrl);
+        const text = await response.text();
+        const rows = text.split('\n').slice(1);
         items = rows.map(row => {
             const [itemName, dateFound, location, description, imageUrl, claimed] = row.split(',');
             return { itemName, dateFound, location, description, imageUrl, claimed };
-        }).filter(item => item.itemName && item.imageUrl); // keep only valid items
+        }).filter(item => item.itemName && item.imageUrl);
         displayItems(items);
-    })
-    .catch(error => console.error('Error fetching the sheet:', error));
+    } catch (error) {
+        console.error('Error fetching sheet:', error);
+    }
+}
 
 function displayItems(filteredItems) {
     const container = document.getElementById('items-container');
     container.innerHTML = '';
     filteredItems.forEach(item => {
+        const shortDesc = item.description ? item.description.split(' ').slice(0, 50).join(' ') : '';
         const card = document.createElement('div');
         card.classList.add('item-card');
         card.innerHTML = `
@@ -178,29 +211,33 @@ function displayItems(filteredItems) {
             <h3>${item.itemName}</h3>
             <p><strong>Location:</strong> ${item.location}</p>
             <p><strong>Date Found:</strong> ${item.dateFound}</p>
-            <p>${item.description}</p>
+            <p class="desc">${shortDesc}</p>
             <a href="mailto:school@example.com?subject=Claiming ${item.itemName}" class="claim-button">Claim Item</a>
         `;
         container.appendChild(card);
     });
 }
 
-// Search functionality
+// Search filtering
 document.querySelectorAll('.search-bar input').forEach(input => {
     input.addEventListener('input', () => {
         const name = document.getElementById('search-name').value.toLowerCase();
         const location = document.getElementById('search-location').value.toLowerCase();
         const date = document.getElementById('search-date').value;
-
         const filtered = items.filter(item => {
             return (!name || item.itemName.toLowerCase().includes(name)) &&
                    (!location || item.location.toLowerCase().includes(location)) &&
                    (!date || item.dateFound.includes(date));
         });
-
         displayItems(filtered);
     });
 });
+
+// Initial fetch
+fetchData();
+
+// 🔁 Auto refresh every 2 minutes
+setInterval(fetchData, 120000);
 </script>
 
 </body>
