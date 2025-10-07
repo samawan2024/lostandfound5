@@ -12,7 +12,7 @@
         display: flex;
         flex-direction: column;
         min-height: 100vh;
-        padding-top: 100px; /* for header space */
+        padding-top: 100px;
     }
 
     /* Fixed Header */
@@ -77,32 +77,42 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: space-between; /* keeps button pushed to bottom */
         transition: transform 0.2s ease;
+        height: 100%; /* uniform height */
     }
 
     .item-card:hover {
         transform: translateY(-5px);
     }
 
+    .item-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: center;
+        width: 100%;
+    }
+
     .item-card img {
         width: 100%;
-        max-height: 300px; /* fixed space but image fully visible */
-        object-fit: contain; /* ensures full image is visible */
+        max-height: 300px;
+        object-fit: contain;
         border-radius: 8px;
         margin-bottom: 10px;
-        background-color: #f9f9f9; /* for images with transparency */
+        background-color: #f9f9f9;
     }
 
     .item-card h3 {
         margin: 10px 0 5px;
         color: #1e3d7b;
-        text-align: center;
     }
 
     .item-card p {
         margin: 5px 0;
         font-size: 0.95em;
-        text-align: center;
     }
 
     .item-card .desc {
@@ -115,18 +125,18 @@
     }
 
     .claim-button {
-        display: inline-block;
-        margin-top: 10px;
-        background-color: #32cd32;
+        background-color: #1e3d7b;
         color: white;
-        padding: 8px 15px;
+        padding: 10px 20px;
         border-radius: 5px;
         text-decoration: none;
         transition: background-color 0.3s ease;
+        margin-top: 15px;
+        align-self: center;
     }
 
     .claim-button:hover {
-        background-color: #228b22;
+        background-color: #162d5a;
     }
 
     /* Footer */
@@ -204,12 +214,14 @@ function displayItems(filteredItems) {
         const card = document.createElement('div');
         card.classList.add('item-card');
         card.innerHTML = `
-            <img src="${item.imageUrl}" alt="${item.itemName}">
-            <h3>${item.itemName}</h3>
-            <p><strong>Location:</strong> ${item.location}</p>
-            <p><strong>Date Found:</strong> ${item.dateFound}</p>
-            <p class="desc">${shortDesc}</p>
-            <a href="mailto:school@example.com?subject=Claiming ${item.itemName}" class="claim-button"> Visit School to Claim Item</a>
+            <div class="item-content">
+                <img src="${item.imageUrl}" alt="${item.itemName}">
+                <h3>${item.itemName}</h3>
+                <p><strong>Location:</strong> ${item.location}</p>
+                <p><strong>Date Found:</strong> ${item.dateFound}</p>
+                <p class="desc">${shortDesc}</p>
+            </div>
+            <a href="mailto:school@example.com?subject=Claiming ${item.itemName}" class="claim-button">Visit School to Claim Item</a>
         `;
         container.appendChild(card);
     });
